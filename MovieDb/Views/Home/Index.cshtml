@@ -1,31 +1,116 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model MovieDb.Models.ViewMovie
+@{
+    Layout = null;
 }
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+<div class="container" style="margin-top:3%">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Director</th>
+                <th>Date Release</th>
+            </tr>
+        </thead>
+        <tbody id="SetMovieList">
+            <tr id="LoadingStatus" style="color:red"></tr>
+        </tbody>
+    </table>
+    <a href="#" class="btn btn-info" onclick="AddNewMovie()">Add New</a>
+
+    @*Create A Popup Modal With Registration Form For Add Or Edit Student Record*@
+
+    <div class="modal fade" id="MyModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a href="#" class="close" data-dismiss="modal">&times;</a>
+                    <h4 id="ModalTitle"></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form">
+                        <fieldset id="SubmitForm">
+                            @Html.HiddenFor(m => m.Title, new { @id = "StuId" })
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.DirectorName, new { @id = "StuName", @class = "form-control", @placeholder = "Name*" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.ReleaseDate, new { @id = "Email", @class = "form-control", @placeholder = "Email*" })
+                            </div>
+                            <div class="form-group">
+                                <a href="#" class="btn btn-block btn-danger" id="SaveStudentRecord">Save</a>
+                            </div>
+
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+<script>
+    $("#LoadingStatus").html("Loading....");
+    $.get("/Home/GetMovies", null, DataBind);
+    function DataBind(Movies) {
+        var SetData = $("#SetMovieList");
+        for (var i = 0; i < Movies.length; i++) {
+            var Data = "<tr class='row_" + Movies[i].Id + "'>" +
+                "<td>" + "<a href='#' class='btn btn-warning' onclick='EditMovie(" + Movies[i].Id + ")' ><span class='glyphicon glyphicon-edit'></span></a>" + "</td>" +
+                "<td>" + "<a href='#' class='btn btn-danger' onclick='DetailsMovie(" + Movies[i].Id + ")'><span class='glyphicon glyphicon-info-sign'></span></a>" + "</td>" +
+                "<td>" + Movies[i].Id + "</td>" +
+                "<td>" + Movies[i].Title + "</td>" +
+                "<td>" + Movies[i].DirectorName + "</td>" +
+                "<td>" + ToJavaScriptDate(Movies[i].ReleaseDate) + "</td>" +
+                "</tr>";
+            SetData.append(Data);
+            $("#LoadingStatus").html(" ");
+
+        }
+    }
+
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1]));
+        return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+    }
+
+    //Show The Popup Modal For Add New Student
+
+    function AddNewStudent(StudentId) {
+        $("#form")[0].reset();
+        $("#StuId").val(0);
+        $("#DropDwn option:selected").text("--Select Dept--");
+        $("#ModalTitle").html("Add New Student");
+        $("#MyModal").modal();
+
+    }
+
+    //Show The Popup Modal For Edit Student Record
+
+    function EditStudentRecord(StudentId) {
+        var url = "/Home/GetStudentById?StudentId=" + StudentId;
+        $("#ModalTitle").html("Update Student Record");
+        $("#MyModal").modal();
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                var obj = JSON.parse(data);
+                $("#StuId").val(obj.StudentId);
+                $("#StuName").val(obj.StudentName);
+                $("#Email").val(obj.Email);
+                $("#DropDwn option:selected").text(obj.tblDepartment.DepartmentName);
+                $("#DropDwn option:selected").val(obj.DepartmentId);
+
+            }
+        })
+    }
+</script>
