@@ -23,6 +23,43 @@ namespace MovieDb.Service
             return movies;
         }
 
+        public ViewMovie GetMovieById(int id) 
+        {
+            Movie movie = new Movie();
+            using (context = new MovieDbContext())
+            {
+              movie = context.movies.Where(x => x.Id == id).FirstOrDefault();
+            }
+
+            return CustomMapper(movie);
+        }
+
+        public bool SaveMovieToDb(ViewMovie vMovie)
+        {
+            bool result = false;
+            try
+            {
+                Movie movie = new Movie()
+                {
+                    Title = vMovie.Title,
+                    DirectorName = vMovie.DirectorName,
+                    ReleaseDate = vMovie.ReleaseDate
+                };
+                using (context = new MovieDbContext())
+                {
+                    context.movies.Add(movie);
+                    context.SaveChanges();
+                }
+                result = true;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return result;
+        }
+
         private ViewMovie CustomMapper(Movie movie)
         {
             ViewMovie Vmovie = new ViewMovie()

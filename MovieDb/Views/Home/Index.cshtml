@@ -24,7 +24,7 @@
     </table>
     <a href="#" class="btn btn-info" onclick="AddNewMovie()">Add New</a>
 
-    @*Create A Popup Modal With Registration Form For Add Or Edit Student Record*@
+    @*Create A Popup Modal With Registration Form For Add Or Edit Movie Record*@
 
     <div class="modal fade" id="MyModal">
         <div class="modal-dialog">
@@ -36,15 +36,18 @@
                 <div class="modal-body">
                     <form id="form">
                         <fieldset id="SubmitForm">
-                            @Html.HiddenFor(m => m.Title, new { @id = "StuId" })
+                            @Html.HiddenFor(m => m.Title, new { @id = "MovieId" })
                             <div class="form-group">
-                                @Html.TextBoxFor(m => m.DirectorName, new { @id = "StuName", @class = "form-control", @placeholder = "Name*" })
+                                @Html.TextBoxFor(m => m.DirectorName, new { @id = "MovTitle", @class = "form-control", @placeholder = "Title*" })
                             </div>
                             <div class="form-group">
-                                @Html.TextBoxFor(m => m.ReleaseDate, new { @id = "Email", @class = "form-control", @placeholder = "Email*" })
+                                @Html.TextBoxFor(m => m.ReleaseDate, new { @id = "MovDirector", @class = "form-control", @placeholder = "Director*" })
                             </div>
                             <div class="form-group">
-                                <a href="#" class="btn btn-block btn-danger" id="SaveStudentRecord">Save</a>
+                                @Html.TextBoxFor(m => m.ReleaseDate, new { @id = "MovDateRelease", @class = "form-control", @placeholder = "Data Release*" })
+                            </div>
+                            <div class="form-group">
+                                <a href="#" class="btn btn-block btn-danger" id="SaveMovie">Save</a>
                             </div>
 
                         </fieldset>
@@ -75,6 +78,18 @@
         }
     }
 
+        //Show The Popup Modal For Add New Movie
+
+    function AddNewMovie(Id) {
+        $("#form")[0].reset();
+        $("#MovieId").val(0);
+        $("#ModalTitle").html("Add Movie");
+        $("#MyModal").modal();
+
+    }
+
+    // Convert DateTime
+
     function ToJavaScriptDate(value) {
         var pattern = /Date\(([^)]+)\)/;
         var results = pattern.exec(value);
@@ -82,35 +97,53 @@
         return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
     }
 
-    //Show The Popup Modal For Add New Student
-
-    function AddNewStudent(StudentId) {
-        $("#form")[0].reset();
-        $("#StuId").val(0);
-        $("#DropDwn option:selected").text("--Select Dept--");
-        $("#ModalTitle").html("Add New Student");
-        $("#MyModal").modal();
-
-    }
-
+    // Save new movie
+    $("SaveMovie").click(function() {
+        var data = $("SubmitForm").serialize();
+        $.ajax({
+            type: "Post",
+            url: "/Home/SaveNewMovie",
+            data: data,
+            success: "Success"
+        } )
+    })
+  
     //Show The Popup Modal For Edit Student Record
 
-    function EditStudentRecord(StudentId) {
-        var url = "/Home/GetStudentById?StudentId=" + StudentId;
-        $("#ModalTitle").html("Update Student Record");
+    function EditMovie(Id) {
+        var url = "/Home/GetMovie?Id=" + Id;
+        $("#ModalTitle").html("Edit Movie");
         $("#MyModal").modal();
         $.ajax({
             type: "GET",
             url: url,
-            success: function (data) {
-                var obj = JSON.parse(data);
-                $("#StuId").val(obj.StudentId);
-                $("#StuName").val(obj.StudentName);
-                $("#Email").val(obj.Email);
-                $("#DropDwn option:selected").text(obj.tblDepartment.DepartmentName);
-                $("#DropDwn option:selected").val(obj.DepartmentId);
-
+            success: function (obj) {
+                $("#SubmitForm").prop("disabled", false);
+                $("#MovieId").val(obj.Id);
+                $("#MovTitle").val(obj.Title);
+                $("#MovDirector").val(obj.DirectorName);
+                $("#MovDateRelease").val(ToJavaScriptDate(obj.ReleaseDate));
             }
         })
+        $("#SaveMovie").show();
+    }
+
+    function DetailsMovie(Id) {
+        var url = "/Home/GetMovie?Id=" + Id;
+        $("#ModalTitle").html("Details");
+        $("#MyModal").modal();
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (obj) {
+                $("#SubmitForm").prop("disabled", true);
+                $("#MovieId").val(obj.Id);
+                $("#MovTitle").val(obj.Title);
+                $("#MovDirector").val(obj.DirectorName);
+                $("#MovDateRelease").val(ToJavaScriptDate(obj.ReleaseDate));
+            }
+        })
+        $("#SaveMovie").hide();
+
     }
 </script>

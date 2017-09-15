@@ -1,4 +1,5 @@
-﻿using MovieDb.Service;
+﻿using MovieDb.Models;
+using MovieDb.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,20 @@ namespace MovieDb.Controllers
             var toJson = Json(movies, JsonRequestBehavior.AllowGet);
             return toJson;
         }
+
+        public JsonResult GetMovie(int id)
+        {
+            var movie = this.manager.GetMovieById(id);
+            var toJson = Json(movie, JsonRequestBehavior.AllowGet);
+            return toJson;
+        }
+        [HttpPost]
+        public JsonResult SaveNewMovie(ViewMovie data)
+        {
+           bool result = manager.SaveMovieToDb(data);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
 
         public ActionResult About()
         {
