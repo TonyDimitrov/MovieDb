@@ -18,17 +18,17 @@ namespace MovieDb.Service
             List<ViewMovie> movies = new List<ViewMovie>();
             using (this.context = new MovieDbContext())
             {
-                movies = this.context.movies.ToList().Skip(skiped).Take(3).Select(x => CustomMapper(x)).ToList(); ;
+                movies = this.context.Movies.ToList().Skip(skiped).OrderByDescending(x => x.Id).Select(x => CustomMapper(x)).ToList();
             }
             return movies;
         }
 
-        public ViewMovie GetMovieById(int id) 
+        public ViewMovie GetMovieById(int id)
         {
             Movie movie = new Movie();
             using (context = new MovieDbContext())
             {
-              movie = context.movies.Where(x => x.Id == id).FirstOrDefault();
+                movie = context.Movies.Where(x => x.Id == id).FirstOrDefault();
             }
 
             return CustomMapper(movie);
@@ -36,29 +36,56 @@ namespace MovieDb.Service
 
         public bool SaveMovieToDb(ViewMovie vMovie)
         {
+            Movie movie;
             bool result = false;
-            try
+            if (vMovie.Id == 0)
             {
-                Movie movie = new Movie()
+                try
                 {
-                    Title = vMovie.Title,
-                    DirectorName = vMovie.DirectorName,
-                    ReleaseDate = vMovie.ReleaseDate
-                };
-                using (context = new MovieDbContext())
-                {
-                    context.movies.Add(movie);
-                    context.SaveChanges();
+                    movie = new Movie()
+                    {
+                        Title = vMovie.Title,
+                        DirectorName = vMovie.DirectorName,
+                        ReleaseDate = vMovie.ReleaseDate
+                    };
+                    using (context = new MovieDbContext())
+                    {
+                        context.Movies.Add(movie);
+                        context.SaveChanges();
+                    }
+                    result = true;
                 }
-                result = true;
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                return result;
             }
-            catch (Exception ex)
+            else
             {
-
-                throw ex;
+                try
+                {
+                    using (context = new MovieDbContext())
+                    {
+                        movie = context.Movies.Where(x => x.Id == vMovie.Id).FirstOrDefault();
+                        if (movie != null)
+                        {
+                            movie.Title = vMovie.Title;
+                            movie.DirectorName = vMovie.DirectorName;
+                            movie.ReleaseDate = vMovie.ReleaseDate;
+                            context.SaveChanges();
+                            result = true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                return result;
             }
-            return result;
         }
+
 
         private ViewMovie CustomMapper(Movie movie)
         {

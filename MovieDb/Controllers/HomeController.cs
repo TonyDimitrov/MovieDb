@@ -2,6 +2,7 @@
 using MovieDb.Service;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -23,7 +24,7 @@ namespace MovieDb.Controllers
 
         public JsonResult GetMovies()
         {
-            var movies = this.manager.GetMovies(1);
+            var movies = this.manager.GetMovies();
             var toJson = Json(movies, JsonRequestBehavior.AllowGet);
             return toJson;
         }
@@ -37,23 +38,17 @@ namespace MovieDb.Controllers
         [HttpPost]
         public JsonResult SaveNewMovie(ViewMovie data)
         {
-           bool result = manager.SaveMovieToDb(data);
+            bool result = manager.SaveMovieToDb(data);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-
-        public ActionResult About()
+        [HttpPost]
+        public void WriteJson(ViewMovie data)
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            string filePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Error Log", "moviesList.json");
+            TextWriter tw = new StreamWriter(filePath);
+            tw.Write(data);
         }
     }
 }

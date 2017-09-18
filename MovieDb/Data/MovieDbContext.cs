@@ -18,7 +18,7 @@ namespace MovieDb.Data
 
         // public virtual DbSet<MyEntity> MyEntities { get; set; }
 
-        public DbSet<Movie> movies { get; set; }
+        public DbSet<Movie> Movies { get; set; }
     }
 
 }

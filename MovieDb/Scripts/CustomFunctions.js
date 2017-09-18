@@ -1,66 +1,4 @@
-﻿@model MovieDb.Models.ViewMovie
-@{
-    Layout = null;
-}
-<script src="~/Scripts/jquery-1.10.2.min.js"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-
-<div class="container" style="margin-top:3%">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th></th>
-                <th></th>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Director</th>
-                <th>Date Release</th>
-            </tr>
-        </thead>
-        <tbody id="SetMovieList">
-            <tr id="LoadingStatus" style="color:red"></tr>
-        </tbody>
-    </table>
-    <a href="#" class="btn btn-info" onclick="AddNewMovie()">Add New</a>
-
-    <a href="#" class="btn btn-info" onclick="Download(@Model)">Download</a>
-
-    @*Create A Popup Modal With Registration Form For Add Or Edit Movie Record*@
-
-    <div class="modal fade" id="MyModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <a href="#" class="close" data-dismiss="modal">&times;</a>
-                    <h4 id="ModalTitle"></h4>
-                </div>
-                <div class="modal-body">
-                    <form id="form">
-                        <fieldset id="SubmitForm">
-                            @Html.HiddenFor(m => m.Id, new { @id = "MovieId", Value = 0 })
-                            <div class="form-group">
-                                @Html.TextBoxFor(m => m.Title, new { @id = "MovTitle", @class = "form-control", @placeholder = "Title*" })
-                            </div>
-                            <div class="form-group">
-                                @Html.TextBoxFor(m => m.DirectorName, new { @id = "MovDirector", @class = "form-control", @placeholder = "Movie Director*" })
-                            </div>
-                            <div class="form-group">
-                                @Html.TextBoxFor(m => m.ReleaseDate, new { @id = "MovReleaseDate", @class = "form-control", @placeholder = "Release Date*" })
-                            </div>
-                            <div class="form-group">
-                                <a href="#" class="btn btn-block btn-danger" id="SaveMovie">Save</a>
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    $("#LoadingStatus").html("Loading....");
+﻿    $("#LoadingStatus").html("Loading....");
     $.get("/Home/GetMovies", null, DataBind);
     function DataBind(Movies) {
         var SetData = $("#SetMovieList");
@@ -90,30 +28,7 @@
         $("#MyModal").modal();
 
     }
-    // Download file in json format
 
-    function Download(movies)
-    {
-        $.get("Home/GetMovies", null, DataBind);
-
-        function DataBind(Movies) {
-            var data = JSON.stringify({Movies})
-            SendJson(data);
-        }
-        function SendJson(data)
-        {
-            var url = "Home/WriteJson";
-            $.ajax(
-                {
-                    url: url,
-                    type: "POST",
-                    data: data,
-                    success: 'true',
-                    error: 'false'
-                });
-
-        }
-    }
     // Convert DateTime
 
     function ToJavaScriptDate(value) {
@@ -139,9 +54,9 @@
                 ReleaseDate: $("#MovReleaseDate").val()
             }),
             success: 'ok',
-
+        
             error: 'fail'
-        });
+    });
         return false;
     });
 
@@ -183,4 +98,3 @@
         $("#SaveMovie").hide();
 
     }
-</script>
